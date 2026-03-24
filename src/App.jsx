@@ -1,11 +1,57 @@
-import { Suspense, useRef } from 'react'
+import { Suspense, useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { ScrollControls, Scroll, useScroll, Float, Stars, Sparkles, OrbitControls } from '@react-three/drei'
+import { ScrollControls, Scroll, useScroll, Float, Stars, Sparkles, OrbitControls, Image as DreiImage } from '@react-three/drei'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 import { User, Code, GraduationCap, Briefcase, Mail, Phone, MapPin, MonitorPlay, Zap, Trophy } from 'lucide-react'
 
+import heroImg from './assets/hero.png'
+import profilImg from './assets/profil.png'
+import profil1Img from './assets/profil1.png'
+import icon4Img from './assets/icon4.png'
+import nomImg from './assets/nom.png'
+
 // Main 3D Scene setup
+function CustomCursor() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isHovering, setIsHovering] = useState(false)
+  
+  useEffect(() => {
+    const updateMousePosition = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+
+    const handleMouseOver = (e) => {
+      if (e.target.tagName.toLowerCase() === 'a' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('a') || e.target.closest('button')) {
+        setIsHovering(true)
+      } else {
+        setIsHovering(false)
+      }
+    }
+
+    window.addEventListener('mousemove', updateMousePosition)
+    window.addEventListener('mouseover', handleMouseOver)
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition)
+      window.removeEventListener('mouseover', handleMouseOver)
+    }
+  }, [])
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-emerald-400 pointer-events-none z-[9999] flex items-center justify-center bg-transparent shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+      animate={{ 
+        x: mousePosition.x - 16, 
+        y: mousePosition.y - 16,
+        scale: isHovering ? 1.5 : 1
+      }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.2 }}
+    >
+      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+    </motion.div>
+  )
+}
+
 function Scene() {
   const scroll = useScroll()
   const ref = useRef()
@@ -19,26 +65,17 @@ function Scene() {
 
   return (
     <group ref={ref}>
-      {/* Cool techy 3D objects floating */}
+      {/* Cool techy 3D objects floating with images */}
       <Float speed={1.5} rotationIntensity={2} floatIntensity={3} position={[-2, 1, -3]}>
-        <mesh>
-          <icosahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#3b82f6" wireframe />
-        </mesh>
+        <DreiImage url={profilImg} scale={[3, 4]} transparent opacity={0.8} />
       </Float>
       
       <Float speed={2} rotationIntensity={1.5} floatIntensity={2} position={[2, -1, -2]}>
-        <mesh>
-          <octahedronGeometry args={[0.8, 0]} />
-          <meshStandardMaterial color="#8b5cf6" wireframe />
-        </mesh>
+        <DreiImage url={icon4Img} scale={[3, 3]} transparent opacity={0.7} />
       </Float>
 
       <Float speed={1} rotationIntensity={3} floatIntensity={1.5} position={[-3, -4, -4]}>
-        <mesh>
-          <torusKnotGeometry args={[0.6, 0.2, 100, 16]} />
-          <meshStandardMaterial color="#10b981" wireframe />
-        </mesh>
+        <DreiImage url={profil1Img} scale={[3, 4]} transparent opacity={0.8} />
       </Float>
 
       <Float speed={2.5} rotationIntensity={1} floatIntensity={2} position={[3, -7, -3]}>
@@ -46,6 +83,10 @@ function Scene() {
           <dodecahedronGeometry args={[1.2, 0]} />
           <meshStandardMaterial color="#f59e0b" wireframe />
         </mesh>
+      </Float>
+
+      <Float speed={2} rotationIntensity={2} floatIntensity={2} position={[-2, -10, -2]}>
+        <DreiImage url={nomImg} scale={[4, 1.5]} transparent opacity={0.9} />
       </Float>
     </group>
   )
@@ -61,7 +102,8 @@ function Section({ children, className }) {
 
 function App() {
   return (
-    <div className="w-full h-screen bg-slate-950 font-sans">
+    <div className="w-full h-screen bg-slate-950 font-sans cursor-none">
+      <CustomCursor />
       <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
         <color attach="background" args={['#020617']} />
         <ambientLight intensity={0.5} />
